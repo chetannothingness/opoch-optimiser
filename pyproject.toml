@@ -1,0 +1,80 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "opoch-optimizer"
+version = "0.1.0"
+description = "Deterministic global nonlinear optimization with auditable certificates"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.8"
+authors = [
+    {name = "OPOCH Team"}
+]
+keywords = [
+    "optimization",
+    "global optimization",
+    "nonlinear optimization",
+    "branch-and-bound",
+    "certification",
+    "deterministic"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Mathematics",
+]
+dependencies = [
+    "numpy>=1.21",
+    "scipy>=1.7",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+]
+ioh = [
+    "ioh>=0.3.0",
+]
+all = [
+    "opoch-optimizer[dev,ioh]",
+]
+
+[project.urls]
+Homepage = "https://github.com/yourusername/opoch-optimizer"
+Documentation = "https://github.com/yourusername/opoch-optimizer/tree/main/docs"
+Repository = "https://github.com/yourusername/opoch-optimizer"
+Issues = "https://github.com/yourusername/opoch-optimizer/issues"
+
+[project.scripts]
+opoch = "opoch_optimizer.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+
+[tool.coverage.run]
+source = ["src/opoch_optimizer"]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+]

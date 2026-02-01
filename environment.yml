@@ -1,0 +1,12 @@
+name: opoch
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python>=3.8
+  - numpy>=1.21
+  - scipy>=1.7
+  - pytest>=7.0
+  - pip
+  - pip:
+    - ioh>=0.3.0

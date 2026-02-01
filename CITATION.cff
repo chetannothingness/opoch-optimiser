@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+title: "OPOCH Optimizer"
+message: "If you use this software, please cite it using the metadata from this file."
+type: software
+authors:
+  - family-names: "OPOCH"
+    given-names: "Team"
+repository-code: "https://github.com/yourusername/opoch-optimizer"
+url: "https://github.com/yourusername/opoch-optimizer"
+abstract: >-
+  Deterministic global nonlinear optimization with auditable certificates.
+  Returns either a globally optimal solution (within tolerance), an infeasibility
+  proof, or an exact remaining gap with the next best separator action.
+keywords:
+  - global optimization
+  - nonlinear optimization
+  - branch-and-bound
+  - certification
+  - deterministic algorithms
+license: MIT
+version: 0.1.0
+date-released: 2025-01-31
