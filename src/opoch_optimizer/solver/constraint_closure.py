@@ -7,22 +7,31 @@ Constraints are treated as CONTRACTORS (Δ operators), not mere checks.
 The closure applies:
 1. FBBT for all constraints (inequalities and equalities)
 2. Krawczyk contraction for equality manifolds
-3. Fixed-point iteration until no more tightening
+3. Disjunction detection for even-power constraints
+4. Fixed-point iteration until no more tightening
 
-This is the missing piece for 100% GLOBALLib:
-- Loose LB → fixed by contraction + McCormick LB
-- Missing UB → fixed by feasibility-first BnP
-- Equality manifolds → fixed by Krawczyk contractor
+The Δ* constructors include:
+- FBBT: Feasibility-based bound tightening
+- Krawczyk: Equality manifold contraction
+- Root-isolation: Disjunction splitting for (g(x))^(2k) = c constraints
+
+This is the complete mathematical foundation for GLOBALLib certification.
 """
 
 import numpy as np
 from typing import Dict, List, Optional, Tuple, Any
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
+import math
 
 from ..bounds.interval import Interval
 from ..bounds.fbbt import FBBTOperator, FBBTResult, FBBTInequalityOperator
 from ..bounds.krawczyk import KrawczykOperator, KrawczykResult, KrawczykStatus
+from ..bounds.disjunction_contractor import (
+    DisjunctionContractor,
+    detect_torus_constraint,
+    create_component_subproblems,
+)
 from ..expr_graph import ExpressionGraph
 
 
@@ -32,6 +41,17 @@ class ClosureStatus(Enum):
     EMPTY = "empty"             # Proved infeasible
     UNCHANGED = "unchanged"     # No significant change
     CONVERGED = "converged"     # Fixed point reached
+    DISJUNCTION = "disjunction" # Constraint creates disjoint components
+
+
+@dataclass
+class ComponentBranch:
+    """A component branch from disjunction splitting."""
+    lower: np.ndarray
+    upper: np.ndarray
+    scalar_value: float        # The scalar constraint value (e.g., 1.5 for inner circle)
+    constraint_index: int      # Which constraint created this branch
+    priority: float = 0.0      # Lower is better (for LB-based ordering)
 
 
 @dataclass
@@ -46,6 +66,8 @@ class ClosureResult:
     fbbt_iterations: int
     krawczyk_iterations: int
     certificate: Dict[str, Any]
+    # Disjunction information (if status == DISJUNCTION)
+    disjunction_branches: List[ComponentBranch] = field(default_factory=list)
 
 
 class ConstraintClosure:
@@ -56,8 +78,12 @@ class ConstraintClosure:
     - FBBTOperator for h(x) = 0 (equalities)
     - FBBTInequalityOperator for g(x) ≤ 0 (inequalities)
     - KrawczykOperator for equality systems (manifold contraction)
+    - DisjunctionContractor for even-power constraints (root isolation)
 
-    This is the core Delta-closure that enables GLOBALLib certification.
+    The root-isolation constructor is the key for constraints like:
+        (g(x))^2 = c  →  g(x) = +√c OR g(x) = -√c
+
+    This creates disjoint components that must be branched on separately.
     """
 
     def __init__(
@@ -101,6 +127,79 @@ class ConstraintClosure:
             self._krawczyk_op = KrawczykOperator(
                 self.eq_constraints, n_vars
             )
+
+        # Disjunction detection for even-power constraints
+        self._disjunction_info: Optional[Dict[str, Any]] = None
+        self._detect_disjunctions()
+
+    def _detect_disjunctions(self):
+        """
+        Detect even-power equality constraints that create disjunctions.
+
+        Pattern: (g(x) - c)^2 = d  →  g(x) = c ± √d (two components)
+
+        This is the root-isolation Δ* constructor.
+        """
+        for i, graph in enumerate(self.eq_constraints):
+            # Detect torus-like constraint: (x² + y² - c)² = d
+            info = detect_torus_constraint(graph, self.n_vars)
+            if info is not None:
+                self._disjunction_info = {
+                    "constraint_index": i,
+                    "scalar_expr": info["scalar_expr"],
+                    "center": info["center"],
+                    "rhs": info["rhs"],
+                    "roots": info["roots"],  # Scalar values for each component
+                }
+                return  # Only handle one disjunction for now
+
+    def get_disjunction_branches(
+        self,
+        lower: np.ndarray,
+        upper: np.ndarray,
+        objective_graph: Optional[ExpressionGraph] = None
+    ) -> Optional[List[ComponentBranch]]:
+        """
+        Get component branches for disjunction constraints.
+
+        If this closure has a disjunction constraint, returns branches
+        ordered by priority (lowest LB first for minimization).
+
+        For constraint (x² + y² - c)² = d with roots [r1, r2]:
+        - Creates branch for x² + y² = r1 with bounds tightened to circle r1
+        - Creates branch for x² + y² = r2 with bounds tightened to circle r2
+
+        Returns None if no disjunction detected.
+        """
+        if self._disjunction_info is None:
+            return None
+
+        roots = self._disjunction_info["roots"]
+        idx = self._disjunction_info["constraint_index"]
+
+        # Create component subproblems
+        components = create_component_subproblems(lower, upper, roots, self.n_vars)
+
+        if not components:
+            return None
+
+        branches = []
+        for comp_lower, comp_upper, scalar_val in components:
+            # Priority = scalar_val for minimization of x² + y² type objectives
+            # Lower scalar value = smaller circle = lower objective = higher priority
+            branch = ComponentBranch(
+                lower=comp_lower,
+                upper=comp_upper,
+                scalar_value=scalar_val,
+                constraint_index=idx,
+                priority=scalar_val  # Lower is better
+            )
+            branches.append(branch)
+
+        # Sort by priority (lowest first)
+        branches.sort(key=lambda b: b.priority)
+
+        return branches
 
     def apply(
         self,

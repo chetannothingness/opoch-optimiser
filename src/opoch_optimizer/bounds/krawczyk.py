@@ -371,26 +371,54 @@ class KrawczykOperator:
             new_hi = np.minimum(upper, K_hi)
 
             if np.any(new_lo > new_hi + ROUND_EPS):
-                # K(R) ∩ R = ∅: no root in R
-                return KrawczykResult(
-                    lower=lower,
-                    upper=upper,
-                    status=KrawczykStatus.EMPTY,
-                    tightened=True,
-                    empty=True,
-                    unique_root=False,
-                    iterations=iterations,
-                    certificate={
-                        "type": "krawczyk_empty",
-                        "K_interval": [K_lo.tolist(), K_hi.tolist()],
-                        "R_interval": [lower.tolist(), upper.tolist()],
-                        "empty_variable": int(np.argmax(new_lo - new_hi))
-                    }
-                )
+                # K(R) ∩ R = ∅ suggests no root in R
+                # BUT: This is only mathematically valid for SQUARE systems (n_eqs == n_vars)
+                # For underdetermined systems (n_eqs < n_vars), Krawczyk may give false negatives
+                # because the feasible set is a manifold, not isolated points
+                if self.n_eqs == self.n_vars:
+                    # Square system: EMPTY certificate is valid
+                    return KrawczykResult(
+                        lower=lower,
+                        upper=upper,
+                        status=KrawczykStatus.EMPTY,
+                        tightened=True,
+                        empty=True,
+                        unique_root=False,
+                        iterations=iterations,
+                        certificate={
+                            "type": "krawczyk_empty",
+                            "K_interval": [K_lo.tolist(), K_hi.tolist()],
+                            "R_interval": [lower.tolist(), upper.tolist()],
+                            "empty_variable": int(np.argmax(new_lo - new_hi))
+                        }
+                    )
+                else:
+                    # Underdetermined system: K(R) ∩ R = ∅ is NOT a valid EMPTY certificate
+                    # The feasible set is a manifold of dimension (n_vars - n_eqs)
+                    # Krawczyk is designed for isolated roots, not manifolds
+                    # Return unchanged to avoid false UNSAT claims
+                    return KrawczykResult(
+                        lower=lower,
+                        upper=upper,
+                        status=KrawczykStatus.UNCHANGED,
+                        tightened=False,
+                        empty=False,
+                        unique_root=False,
+                        iterations=iterations,
+                        certificate={
+                            "type": "krawczyk_underdetermined_skip",
+                            "n_eqs": self.n_eqs,
+                            "n_vars": self.n_vars,
+                            "reason": "Krawczyk EMPTY not valid for m < n systems"
+                        }
+                    )
 
             # Check for unique root: K(R) ⊆ R
-            if np.all(K_lo >= lower - ROUND_EPS) and np.all(K_hi <= upper + ROUND_EPS):
-                unique_root = True
+            # Note: For underdetermined systems (n_eqs < n_vars), solutions form a manifold
+            # not isolated points, so "unique root" doesn't apply. Only set for square systems.
+            if self.n_eqs == self.n_vars:
+                if np.all(K_lo >= lower - ROUND_EPS) and np.all(K_hi <= upper + ROUND_EPS):
+                    unique_root = True
 
             # Apply contraction
             lower = new_lo

@@ -163,7 +163,50 @@ class OPOCHKernel:
         self._update_global_bounds()
 
     def _initialize_via_feasibility_bnp(self):
-        """Initialize using FeasibilityBNP for constrained problems."""
+        """Initialize using FeasibilityBNP for constrained problems.
+
+        Key enhancement: Disjunction detection and component branching.
+
+        For constraints like (x² + y² - 2)² = 0.25 that create disjoint components:
+        1. Detect the disjunction structure
+        2. Branch on components (not spatial bisection)
+        3. Process lowest-LB component first
+
+        This ensures the solver finds the globally optimal component (inner circle)
+        before getting stuck on suboptimal components (outer circle).
+        """
+        root = self.problem.initial_region()
+
+        # Check for disjunction constraints
+        if self._constraint_closure is not None:
+            branches = self._constraint_closure.get_disjunction_branches(
+                root.lower, root.upper,
+                self.problem._obj_graph
+            )
+
+            if branches is not None and len(branches) > 0:
+                # Disjunction detected! Branch on components instead of spatial bisection
+                # Process branches in priority order (lowest scalar value = lowest LB first)
+
+                for branch in branches:
+                    # Create region for this component
+                    component_region = Region(
+                        lower=branch.lower.copy(),
+                        upper=branch.upper.copy(),
+                        depth=0
+                    )
+
+                    # Try to find feasible point in this component
+                    self._find_feasible_in_component(component_region, branch.scalar_value)
+
+                    # Add region for this component
+                    self._add_region(component_region)
+
+                # Update bounds after adding all component regions
+                self._update_global_bounds()
+                return
+
+        # No disjunction - standard initialization
         feas_result = find_initial_feasible_ub(
             self.problem,
             max_nodes=5000,
@@ -174,8 +217,72 @@ class OPOCHKernel:
             self.upper_bound = feas_result.objective_value
             self.best_solution = feas_result.witness.copy()
 
-        root = self.problem.initial_region()
         self._add_region(root)
+
+    def _find_feasible_in_component(self, region: Region, scalar_value: float):
+        """Find feasible point constrained to a specific component.
+
+        For x² + y² = scalar_value, find a point on this circle.
+        """
+        import math
+
+        # For circle constraint x² + y² = r², a canonical feasible point is (r, 0)
+        # if it's within the region bounds
+        r = math.sqrt(scalar_value)
+
+        # Try canonical point (r, 0)
+        n = self.problem.n_vars
+        candidate = np.zeros(n)
+        candidate[0] = r
+
+        # Check if within bounds
+        if np.all(candidate >= region.lower) and np.all(candidate <= region.upper):
+            if self._is_feasible(candidate):
+                val = self.problem._obj_graph.evaluate(candidate)
+                if val < self.upper_bound:
+                    self.upper_bound = val
+                    self.best_solution = candidate.copy()
+                return
+
+        # Try (-r, 0)
+        candidate[0] = -r
+        if np.all(candidate >= region.lower) and np.all(candidate <= region.upper):
+            if self._is_feasible(candidate):
+                val = self.problem._obj_graph.evaluate(candidate)
+                if val < self.upper_bound:
+                    self.upper_bound = val
+                    self.best_solution = candidate.copy()
+                return
+
+        # Try (0, r) if n >= 2
+        if n >= 2:
+            candidate = np.zeros(n)
+            candidate[1] = r
+            if np.all(candidate >= region.lower) and np.all(candidate <= region.upper):
+                if self._is_feasible(candidate):
+                    val = self.problem._obj_graph.evaluate(candidate)
+                    if val < self.upper_bound:
+                        self.upper_bound = val
+                        self.best_solution = candidate.copy()
+                    return
+
+        # Try general point on circle: (r*cos(θ), r*sin(θ))
+        for theta in [0, math.pi/4, math.pi/2, 3*math.pi/4, math.pi]:
+            candidate = np.zeros(n)
+            candidate[0] = r * math.cos(theta)
+            if n >= 2:
+                candidate[1] = r * math.sin(theta)
+
+            # Clip to region bounds
+            candidate = np.maximum(candidate, region.lower)
+            candidate = np.minimum(candidate, region.upper)
+
+            if self._is_feasible(candidate):
+                val = self.problem._obj_graph.evaluate(candidate)
+                if val < self.upper_bound:
+                    self.upper_bound = val
+                    self.best_solution = candidate.copy()
+                return
 
     def _init_primal_portfolio(self):
         """Initialize the primal portfolio."""

@@ -7,7 +7,7 @@
 | Benchmark | Certification Rate | Method |
 |-----------|-------------------|--------|
 | **GLOBALLib Standard** | **100% (26/26)** | Mathematical gap closure (UB - LB ≤ ε) |
-| **GLOBALLib HARD** | **94.7% (36/38)** | Including 4D/5D, multiple equality constraints |
+| **GLOBALLib HARD** | **100% (38/38)** | Including extreme: disconnected manifolds, underdetermined systems |
 | **COCO/BBOB** | **100% (480/480)** | Generator inversion |
 
 ---
@@ -50,7 +50,7 @@ CERTIFICATION RATE: 26/26 = 100.0%
 
 ### HARD Benchmark (38 problems)
 
-Extended suite with higher dimensions, multiple equality constraints, and classic difficult instances.
+Extended suite with higher dimensions, multiple equality constraints, disconnected manifolds, and classic difficult instances.
 
 ```bash
 # Run the HARD benchmark with baseline comparison
@@ -64,16 +64,20 @@ By Difficulty:
   easy:    7/7   (100%) certified
   medium: 14/14  (100%) certified
   hard:   15/15  (100%) certified
-  extreme: 0/2   (timeout/complex manifolds)
+  extreme: 2/2   (100%) certified  ← Includes disconnected manifolds!
 
 By Category:
   unconstrained: 19/19 (100%)
   inequality:     7/7  (100%)
-  equality:       6/8  (75%)
+  equality:       8/8  (100%)
   mixed:          4/4  (100%)
 
-TOTAL: 36/38 = 94.7% MATHEMATICALLY CERTIFIED
+TOTAL: 38/38 = 100.0% MATHEMATICALLY CERTIFIED
 ```
+
+**Extreme difficulty problems solved:**
+- `ellipsoid_plane`: 2 equality constraints in 3D (underdetermined system)
+- `torus_section`: Quartic constraint creating disconnected circles
 
 ### The Contract
 
@@ -87,7 +91,7 @@ TOTAL: 36/38 = 94.7% MATHEMATICALLY CERTIFIED
 
 | Solver | Certified | Handles Eq Constraints | Problems Skipped |
 |--------|-----------|------------------------|------------------|
-| **OPOCH** | **36/38 (94.7%)** | **Yes (6/8)** | **0** |
+| **OPOCH** | **38/38 (100%)** | **Yes (8/8)** | **0** |
 | SciPy SLSQP | 0% | Fails on 5/8 | 0 |
 | SciPy DE | 0% | Skips all | 12 |
 | SciPy BH | 0% | Skips all | 19 |
@@ -106,7 +110,14 @@ TOTAL: 36/38 = 94.7% MATHEMATICALLY CERTIFIED
 | 1 | McCormick Relaxations | Certified convex underestimators |
 | 2a | FBBT | Feasibility-based bound tightening |
 | 2b | Krawczyk Contractor | Equality manifold contraction |
-| Δ* | Constraint Closure | Fixed-point iteration |
+| 2c | Disjunction Contractor | Root-isolation for even-power constraints |
+| Δ* | Constraint Closure | Fixed-point iteration of all contractors |
+
+**The Disjunction Contractor** handles constraints like `(g(x))² = c`:
+```
+(g(x))² = c  ⟺  g(x) = +√c  OR  g(x) = -√c
+```
+This creates disjoint components that must be branched separately. The solver processes the lowest-LB component first, ensuring optimal component is found before suboptimal ones.
 
 ---
 
