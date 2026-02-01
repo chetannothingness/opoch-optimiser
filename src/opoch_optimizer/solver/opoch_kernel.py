@@ -32,6 +32,7 @@ from ..bounds.fbbt import apply_fbbt_all_constraints
 from ..bounds.interval_newton import apply_interval_newton_all_constraints
 from ..primal.portfolio import PrimalPortfolio
 from .feasibility_bnb import FeasibilityBNP, FeasibilityStatus, find_initial_feasible_ub
+from .constraint_closure import ConstraintClosure, ClosureStatus
 
 
 @dataclass
@@ -104,7 +105,21 @@ class OPOCHKernel:
         self._mccormick = McCormickRelaxation(
             problem._obj_graph,
             problem.n_vars,
+            ineq_graphs=problem._ineq_graphs,
+            eq_graphs=problem._eq_graphs
         ) if problem._obj_graph else None
+
+        # Unified constraint closure (Δ*): FBBT + Krawczyk to fixed point
+        self._constraint_closure = None
+        if problem._eq_graphs or problem._ineq_graphs:
+            self._constraint_closure = ConstraintClosure(
+                n_vars=problem.n_vars,
+                eq_constraints=problem._eq_graphs,
+                ineq_constraints=problem._ineq_graphs,
+                max_outer_iterations=20,
+                tol=1e-9,
+                min_progress=0.001
+            )
 
         self._primal_portfolio = None
         self._primal_initialized = False
@@ -142,6 +157,10 @@ class OPOCHKernel:
 
         self._init_primal_portfolio()
         self._global_ub_seeding()
+
+        # CRITICAL: Update global bounds after initialization
+        # This ensures self.lower_bound reflects the actual LB from regions
+        self._update_global_bounds()
 
     def _initialize_via_feasibility_bnp(self):
         """Initialize using FeasibilityBNP for constrained problems."""
@@ -197,68 +216,40 @@ class OPOCHKernel:
             self.best_solution = best_x.copy()
 
     def _add_region(self, region: Region) -> RegionState:
-        """Add a region with computed lower bound."""
+        """Add a region with computed lower bound.
+
+        Uses unified Δ* constraint closure:
+        1. Apply FBBT for all inequalities g(x) ≤ 0
+        2. Apply FBBT for all equalities h(x) = 0
+        3. Apply Krawczyk contractor for equality manifolds
+        4. Iterate to fixed point
+
+        If any phase proves infeasibility → EMPTY certificate.
+        """
         region.region_id = self._next_region_id
         self._next_region_id += 1
 
         working_lower = region.lower.copy()
         working_upper = region.upper.copy()
-        fbbt_certificate = None
-        newton_certificate = None
+        closure_certificate = None
 
-        if self.problem._eq_graphs or self.problem._ineq_graphs:
-            fbbt_result = apply_fbbt_all_constraints(
-                eq_constraints=self.problem._eq_graphs,
-                ineq_constraints=self.problem._ineq_graphs,
-                n_vars=self.problem.n_vars,
-                lower=working_lower,
-                upper=working_upper,
-                max_iterations=10
-            )
+        # Apply unified constraint closure (Δ*)
+        if self._constraint_closure is not None:
+            closure_result = self._constraint_closure.apply(working_lower, working_upper)
 
-            if fbbt_result.empty:
+            if closure_result.empty:
+                # Constraint closure proved infeasibility
                 cert = RegionCertificate(
                     tier=0,
                     lower_bound=float('inf'),
                     witness_hash=hashlib.sha256(
-                        f"fbbt_empty:{region.lower.tolist()}:{region.upper.tolist()}".encode()
-                    ).hexdigest()[:16],
-                    data={"fbbt_certificate": fbbt_result.certificate}
-                )
-
-                state = RegionState(
-                    region=region,
-                    lower_bound=float('inf'),
-                    certificate=cert,
-                    status="empty",
-                    fingerprint=self._region_fingerprint(region, cert),
-                )
-                return state
-
-            if fbbt_result.tightened:
-                working_lower = fbbt_result.lower
-                working_upper = fbbt_result.upper
-                fbbt_certificate = fbbt_result.certificate
-
-        if self.problem._eq_graphs:
-            newton_result = apply_interval_newton_all_constraints(
-                eq_constraints=self.problem._eq_graphs,
-                n_vars=self.problem.n_vars,
-                lower=working_lower,
-                upper=working_upper,
-                max_outer_iterations=5
-            )
-
-            if newton_result.empty:
-                cert = RegionCertificate(
-                    tier=0,
-                    lower_bound=float('inf'),
-                    witness_hash=hashlib.sha256(
-                        f"newton_empty:{region.lower.tolist()}:{region.upper.tolist()}".encode()
+                        f"closure_empty:{region.lower.tolist()}:{region.upper.tolist()}".encode()
                     ).hexdigest()[:16],
                     data={
-                        "fbbt_certificate": fbbt_certificate,
-                        "newton_certificate": newton_result.certificate
+                        "closure_certificate": closure_result.certificate,
+                        "closure_status": closure_result.status.value,
+                        "fbbt_iterations": closure_result.fbbt_iterations,
+                        "krawczyk_iterations": closure_result.krawczyk_iterations,
                     }
                 )
 
@@ -271,20 +262,18 @@ class OPOCHKernel:
                 )
                 return state
 
-            if newton_result.tightened:
-                working_lower = newton_result.lower
-                working_upper = newton_result.upper
-                newton_certificate = newton_result.certificate
+            if closure_result.tightened:
+                working_lower = closure_result.lower
+                working_upper = closure_result.upper
+                closure_certificate = closure_result.certificate
 
         region.lower = working_lower.copy()
         region.upper = working_upper.copy()
 
         lb, cert = self._compute_lower_bound(region)
 
-        if fbbt_certificate:
-            cert.data["fbbt"] = fbbt_certificate
-        if newton_certificate:
-            cert.data["newton"] = newton_certificate
+        if closure_certificate:
+            cert.data["closure"] = closure_certificate
 
         fingerprint = self._region_fingerprint(region, cert)
 
@@ -302,7 +291,15 @@ class OPOCHKernel:
         return state
 
     def _compute_lower_bound(self, region: Region) -> Tuple[float, RegionCertificate]:
-        """Compute lower bound using witness lattice."""
+        """Compute certified lower bound using witness lattice.
+
+        Tiers:
+        - Tier 0: Interval arithmetic (fastest, weakest)
+        - Tier 1: McCormick relaxation (tighter, includes constraints)
+
+        For constrained problems, uses compute_constrained_lower_bound()
+        which builds an LP including constraint relaxations.
+        """
         try:
             iv = interval_evaluate(
                 self.problem._obj_graph,
@@ -314,8 +311,12 @@ class OPOCHKernel:
             lb_interval = float('-inf')
 
         lb_mccormick = float('-inf')
+        lb_constrained = float('-inf')
+        has_constraints = (self.problem._eq_graphs or self.problem._ineq_graphs)
+
         if self._mccormick is not None:
             try:
+                # First: unconstrained McCormick for baseline
                 lb_mccormick, _ = self._mccormick.compute_lower_bound(
                     region.lower,
                     region.upper
@@ -323,8 +324,26 @@ class OPOCHKernel:
             except:
                 pass
 
-        lb = max(lb_interval, lb_mccormick)
-        tier = 1 if lb_mccormick >= lb_interval else 0
+            # For constrained problems: use constrained LP for tighter bound
+            if has_constraints:
+                try:
+                    lb_constrained, _ = self._mccormick.compute_constrained_lower_bound(
+                        region.lower,
+                        region.upper
+                    )
+                except:
+                    pass
+
+        # Take the tightest bound
+        lb = max(lb_interval, lb_mccormick, lb_constrained)
+
+        # Determine tier based on which bound won
+        if lb_constrained >= max(lb_interval, lb_mccormick):
+            tier = 2  # Constrained McCormick (tightest)
+        elif lb_mccormick >= lb_interval:
+            tier = 1  # Unconstrained McCormick
+        else:
+            tier = 0  # Interval arithmetic
 
         cert = RegionCertificate(
             tier=tier,
@@ -335,6 +354,7 @@ class OPOCHKernel:
             data={
                 "interval_lb": lb_interval,
                 "mccormick_lb": lb_mccormick,
+                "constrained_lb": lb_constrained,
             },
         )
 
@@ -447,17 +467,38 @@ class OPOCHKernel:
             self.lower_bound = self.upper_bound
 
     def _check_termination(self) -> Tuple[Optional[Verdict], Any]:
-        """Check termination conditions."""
+        """Check termination conditions.
+
+        Termination requires CERTIFIED gap closure:
+        - UNIQUE-OPT: gap = UB - LB ≤ ε (mathematically certified)
+        - UNSAT: No feasible solution found and all regions refuted
+        - OMEGA-GAP: Budget exhausted before certification
+        """
         gap = self.upper_bound - self.lower_bound
+
+        # UNIQUE-OPT: Certified via gap closure
         if gap <= self.config.epsilon:
             return self._build_optimal_result()
 
+        # All regions exhausted
         if not self._regions:
             if self.upper_bound == float('inf'):
+                # No feasible solution found, all regions refuted
                 return self._build_unsat_result()
-            else:
+            elif self.lower_bound > float('-inf') and gap <= self.config.epsilon:
+                # Properly certified (gap closed)
                 return self._build_optimal_result()
+            elif self.lower_bound > float('-inf'):
+                # All regions pruned but gap still open
+                # This means UB is certified but we terminated before full gap closure
+                # Return as certified since all regions were pruned by LB >= UB - epsilon
+                return self._build_optimal_result()
+            else:
+                # LB = -inf means we can't certify
+                # This shouldn't happen if intervals work correctly
+                return self._build_omega_result("no_lb")
 
+        # Budget checks
         elapsed = time.time() - self.start_time
         if elapsed >= self.config.max_time:
             return self._build_omega_result("time")

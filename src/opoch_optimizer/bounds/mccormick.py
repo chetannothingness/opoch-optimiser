@@ -576,3 +576,189 @@ class McCormickRelaxation:
             # This would require another LP, simplify for now
 
         return "maybe", {}
+
+    def compute_constrained_lower_bound(
+        self,
+        lower: np.ndarray,
+        upper: np.ndarray
+    ) -> Tuple[float, Dict[str, Any]]:
+        """
+        Compute a certified lower bound including constraint relaxations.
+
+        This builds a single LP that:
+        1. Minimizes the McCormick relaxation of the objective
+        2. Includes McCormick relaxations of g_i(x) ≤ 0
+        3. Includes McCormick relaxations of h_j(x) = 0
+
+        Args:
+            lower: Lower bounds of the region
+            upper: Upper bounds of the region
+
+        Returns:
+            Tuple of (lower_bound, certificate)
+        """
+        try:
+            from scipy.optimize import linprog
+
+            # Build the main LP for objective
+            obj_eval = McCormickEvaluator(self.objective, self.n_vars)
+            obj_lp = obj_eval.build_relaxation(lower, upper)
+
+            # Start with objective LP structure
+            n_total = obj_lp.n_total_vars
+            all_constraints = list(obj_lp.constraints)
+            var_lower = obj_lp.var_lower.copy()
+            var_upper = obj_lp.var_upper.copy()
+
+            # Track auxiliary variables offset
+            aux_offset = n_total
+
+            # Add inequality constraints g_i(x) ≤ 0
+            # For each g_i, we add: g_i^cv ≤ 0 (convex underestimator ≤ 0)
+            for i, g in enumerate(self.ineq_graphs):
+                g_eval = McCormickEvaluator(g, self.n_vars)
+                g_lp = g_eval.build_relaxation(lower, upper)
+
+                # Add aux variables for this constraint
+                n_g_aux = g_lp.n_aux_vars
+                new_n_total = n_total + n_g_aux
+
+                # Extend bounds arrays
+                new_var_lower = np.full(new_n_total, float('-inf'))
+                new_var_upper = np.full(new_n_total, float('inf'))
+                new_var_lower[:n_total] = var_lower
+                new_var_upper[:n_total] = var_upper
+                new_var_lower[n_total:] = g_lp.var_lower[self.n_vars:]
+                new_var_upper[n_total:] = g_lp.var_upper[self.n_vars:]
+
+                var_lower = new_var_lower
+                var_upper = new_var_upper
+
+                # Add g constraints with offset
+                for con in g_lp.constraints:
+                    new_coeffs = np.zeros(new_n_total)
+                    new_coeffs[:self.n_vars] = con.coeffs[:self.n_vars]
+                    # Map aux vars
+                    for j in range(self.n_vars, len(con.coeffs)):
+                        new_coeffs[n_total + j - self.n_vars] = con.coeffs[j]
+                    all_constraints.append(LinearConstraint(
+                        new_coeffs, con.rhs, con.sense
+                    ))
+
+                # Add constraint: g_output ≤ 0
+                # Find output variable for g
+                g_output_idx = n_total + g_lp.n_aux_vars - 1  # Last aux var
+                c = np.zeros(new_n_total)
+                c[g_output_idx] = 1.0
+                all_constraints.append(LinearConstraint(c, 0.0, "<="))
+
+                n_total = new_n_total
+
+            # Add equality constraints h_j(x) = 0
+            # For each h_j, add: h_j^cv ≤ 0 and -h_j^cv ≤ 0
+            for j, h in enumerate(self.eq_graphs):
+                h_eval = McCormickEvaluator(h, self.n_vars)
+                h_lp = h_eval.build_relaxation(lower, upper)
+
+                # Add aux variables
+                n_h_aux = h_lp.n_aux_vars
+                new_n_total = n_total + n_h_aux
+
+                new_var_lower = np.full(new_n_total, float('-inf'))
+                new_var_upper = np.full(new_n_total, float('inf'))
+                new_var_lower[:n_total] = var_lower
+                new_var_upper[:n_total] = var_upper
+                new_var_lower[n_total:] = h_lp.var_lower[self.n_vars:]
+                new_var_upper[n_total:] = h_lp.var_upper[self.n_vars:]
+
+                var_lower = new_var_lower
+                var_upper = new_var_upper
+
+                # Add h constraints
+                for con in h_lp.constraints:
+                    new_coeffs = np.zeros(new_n_total)
+                    new_coeffs[:self.n_vars] = con.coeffs[:self.n_vars]
+                    for k in range(self.n_vars, len(con.coeffs)):
+                        new_coeffs[n_total + k - self.n_vars] = con.coeffs[k]
+                    all_constraints.append(LinearConstraint(
+                        new_coeffs, con.rhs, con.sense
+                    ))
+
+                # Add constraint: h_output = 0 (via h ≤ 0 and h ≥ 0)
+                h_output_idx = n_total + n_h_aux - 1
+                c = np.zeros(new_n_total)
+                c[h_output_idx] = 1.0
+                all_constraints.append(LinearConstraint(c, 0.0, "<="))
+                all_constraints.append(LinearConstraint(-c, 0.0, "<="))
+
+                n_total = new_n_total
+
+            # Build objective coefficients (pad to new size)
+            objective = np.zeros(n_total)
+            objective[:len(obj_lp.objective_coeffs)] = obj_lp.objective_coeffs
+
+            # Solve the LP
+            A_ub = []
+            b_ub = []
+
+            for con in all_constraints:
+                # Pad constraint to full size
+                padded = np.zeros(n_total)
+                padded[:len(con.coeffs)] = con.coeffs
+
+                if con.sense == "<=":
+                    A_ub.append(padded)
+                    b_ub.append(con.rhs)
+                else:  # >=
+                    A_ub.append(-padded)
+                    b_ub.append(-con.rhs)
+
+            if A_ub:
+                A_ub = np.array(A_ub)
+                b_ub = np.array(b_ub)
+            else:
+                A_ub = None
+                b_ub = None
+
+            bounds = [(var_lower[i], var_upper[i]) for i in range(n_total)]
+
+            result = linprog(
+                c=objective,
+                A_ub=A_ub,
+                b_ub=b_ub,
+                bounds=bounds,
+                method='highs'
+            )
+
+            if result.success:
+                lb = result.fun
+            else:
+                lb = float('-inf')
+
+            certificate = {
+                "relaxation_type": "mccormick_constrained",
+                "lower_bound": lb,
+                "n_constraints": len(all_constraints),
+                "n_variables": n_total,
+                "n_ineq_constraints": len(self.ineq_graphs),
+                "n_eq_constraints": len(self.eq_graphs),
+                "solver_status": result.message if hasattr(result, 'message') else 'unknown'
+            }
+
+            return lb, certificate
+
+        except Exception as e:
+            # Fallback to simple interval bound
+            from .interval import IntervalEvaluator
+            var_intervals = {
+                i: Interval(lower[i], upper[i])
+                for i in range(self.n_vars)
+            }
+            evaluator = IntervalEvaluator(self.objective)
+            interval, _ = evaluator.evaluate(var_intervals)
+
+            return interval.lo, {
+                "relaxation_type": "interval_fallback",
+                "lower_bound": interval.lo,
+                "error": str(e)
+            }

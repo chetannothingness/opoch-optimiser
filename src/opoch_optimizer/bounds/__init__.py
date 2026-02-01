@@ -33,6 +33,12 @@ from .interval_newton import (
     IntervalNewtonStatus,
     apply_interval_newton_all_constraints,
 )
+from .krawczyk import (
+    KrawczykOperator,
+    KrawczykResult,
+    KrawczykStatus,
+    apply_krawczyk_all_constraints,
+)
 
 __all__ = [
     # Interval (Tier 0)
@@ -53,4 +59,9 @@ __all__ = [
     'IntervalNewtonResult',
     'IntervalNewtonStatus',
     'apply_interval_newton_all_constraints',
+    # Krawczyk (Tier 2b - manifolds)
+    'KrawczykOperator',
+    'KrawczykResult',
+    'KrawczykStatus',
+    'apply_krawczyk_all_constraints',
 ]
