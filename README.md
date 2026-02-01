@@ -6,53 +6,73 @@
 
 | Benchmark | Certification Rate | Method |
 |-----------|-------------------|--------|
-| **GLOBALLib** | **100% (26/26)** | Mathematical gap closure (UB - LB ≤ ε) |
+| **GLOBALLib Standard** | **100% (26/26)** | Mathematical gap closure (UB - LB ≤ ε) |
+| **GLOBALLib HARD** | **94.7% (36/38)** | Including 4D/5D, multiple equality constraints |
 | **COCO/BBOB** | **100% (480/480)** | Generator inversion |
 
 ---
 
-## GLOBALLib Benchmark: 100% Mathematical Certification
+## GLOBALLib Benchmark: Mathematical Certification
 
-OPOCH achieves **100% certification on GLOBALLib** through pure mathematical gap closure - no reference to external optimal values.
+OPOCH achieves **100% certification on standard GLOBALLib** and **94.7% on the extended HARD suite** through pure mathematical gap closure - no reference to external optimal values.
+
+### Standard Benchmark (26 problems)
 
 ```bash
-# Run the complete GLOBALLib benchmark
-python -c "
-import sys; sys.path.insert(0, '.')
-from benchmarks.globallib_complete import PROBLEM_REGISTRY, get_problem
-from benchmarks.run_complete_benchmark import run_opoch
-
-valid = [n for n, p in PROBLEM_REGISTRY.items() if p.obj_graph]
-certified = sum(1 for n in valid if run_opoch(get_problem(n), 1e-4, 60, 50000).certified)
-print(f'Certified: {certified}/{len(valid)} = {100*certified/len(valid):.1f}%')
-"
+# Run the standard GLOBALLib benchmark
+PYTHONPATH=. python benchmarks/run_complete_benchmark.py --no-baselines
 ```
 
-### Results
-
 ```
-GLOBALLib Benchmark (26 problems, ε = 1e-4):
+GLOBALLib Standard (26 problems, ε = 1e-4):
 
 Unconstrained:
-  ✓ rosenbrock_2, rosenbrock_5    ✓ sphere_2, sphere_5
-  ✓ beale, booth, matyas          ✓ goldstein_price
-  ✓ six_hump_camel                ✓ three_hump_camel
-  ✓ dixon_price_2, zakharov_2
+  ✓ rosenbrock_2d, rosenbrock_5d    ✓ sphere_2d, sphere_5d
+  ✓ beale, booth, matyas            ✓ goldstein_price
+  ✓ six_hump_camel                  ✓ three_hump_camel
+  ✓ dixon_price_2d, zakharov_2d
 
 Inequality Constrained:
-  ✓ constrained_quadratic         ✓ constrained_rosenbrock
+  ✓ constrained_quadratic           ✓ constrained_rosenbrock
   ✓ himmelblau_constrained
 
 Equality Constrained (Manifolds):
-  ✓ circle                        ✓ ellipse
-  ✓ sphere_surface                ✓ paraboloid_plane
+  ✓ circle                          ✓ ellipse
+  ✓ sphere_surface                  ✓ paraboloid_plane
   ✓ hyperbola_line
 
 Mixed Constraints:
-  ✓ semicircle                    ✓ quarter_circle
+  ✓ semicircle                      ✓ quarter_circle
   ✓ hs01, hs02, hs03, hs04
 
 CERTIFICATION RATE: 26/26 = 100.0%
+```
+
+### HARD Benchmark (38 problems)
+
+Extended suite with higher dimensions, multiple equality constraints, and classic difficult instances.
+
+```bash
+# Run the HARD benchmark with baseline comparison
+PYTHONPATH=. python benchmarks/run_hard_benchmark.py
+```
+
+```
+GLOBALLib HARD (38 problems, ε = 1e-4):
+
+By Difficulty:
+  easy:    7/7   (100%) certified
+  medium: 14/14  (100%) certified
+  hard:   15/15  (100%) certified
+  extreme: 0/2   (timeout/complex manifolds)
+
+By Category:
+  unconstrained: 19/19 (100%)
+  inequality:     7/7  (100%)
+  equality:       6/8  (75%)
+  mixed:          4/4  (100%)
+
+TOTAL: 36/38 = 94.7% MATHEMATICALLY CERTIFIED
 ```
 
 ### The Contract
@@ -63,15 +83,20 @@ CERTIFICATION RATE: 26/26 = 100.0%
 | **UNSAT** | Infeasible | Δ* refutation cover |
 | **Ω-GAP** | Budget exhausted | Returns exact gap |
 
-### Baseline Comparison
+### Baseline Comparison (38 HARD Problems)
 
-| Solver | Certified | Handles Eq Constraints | Mathematical Proof |
-|--------|-----------|------------------------|-------------------|
-| **OPOCH** | **100%** | **Yes** | **Yes (gap ≤ ε)** |
-| SciPy SLSQP | 0% | No (fails) | No |
-| SciPy DE | 0% | No (skips) | No |
+| Solver | Certified | Handles Eq Constraints | Problems Skipped |
+|--------|-----------|------------------------|------------------|
+| **OPOCH** | **36/38 (94.7%)** | **Yes (6/8)** | **0** |
+| SciPy SLSQP | 0% | Fails on 5/8 | 0 |
+| SciPy DE | 0% | Skips all | 12 |
+| SciPy BH | 0% | Skips all | 19 |
 
-**OPOCH is the only solver providing mathematical certification.**
+**Key findings:**
+- **DE skips all 12 equality-constrained problems** (cannot handle h(x) = 0)
+- **BH skips all 19 constrained problems** (only works unconstrained)
+- **SLSQP fails on manifolds** (circle, sphere_surface, hyperbola_line, etc.)
+- **OPOCH is the ONLY solver providing mathematical certification**
 
 ### Mathematical Foundation
 
@@ -133,8 +158,9 @@ pip install -e .
 # Run tests
 python -m pytest tests/ -v
 
-# Run GLOBALLib benchmark
-python benchmarks/run_complete_benchmark.py
+# Run GLOBALLib benchmarks
+PYTHONPATH=. python benchmarks/run_complete_benchmark.py
+PYTHONPATH=. python benchmarks/run_hard_benchmark.py
 ```
 
 ### Requirements
@@ -165,9 +191,11 @@ opoch-optimizer/
 │   ├── expr_graph.py            # Expression DAG
 │   └── contract.py              # Problem specification
 ├── benchmarks/                  # GLOBALLib benchmark suite
-│   ├── globallib_complete.py    # 26 test problems
-│   └── run_complete_benchmark.py # Benchmark runner
-├── tests/                       # Test suite (55 tests)
+│   ├── globallib_complete.py    # 26 standard problems
+│   ├── globallib_hard.py        # 38 hard problems
+│   ├── run_complete_benchmark.py # Standard benchmark runner
+│   └── run_hard_benchmark.py    # HARD benchmark runner
+├── tests/                       # Test suite
 └── docs/                        # Documentation
 ```
 
