@@ -30,6 +30,7 @@ from ..bounds.interval import interval_evaluate, Interval
 from ..bounds.mccormick import McCormickRelaxation
 from ..bounds.fbbt import apply_fbbt_all_constraints
 from ..bounds.interval_newton import apply_interval_newton_all_constraints
+from ..bounds.separable_bounds import SeparableBoundComputer
 from ..primal.portfolio import PrimalPortfolio
 from .feasibility_bnb import FeasibilityBNP, FeasibilityStatus, find_initial_feasible_ub
 from .constraint_closure import ConstraintClosure, ClosureStatus
@@ -108,6 +109,19 @@ class OPOCHKernel:
             ineq_graphs=problem._ineq_graphs,
             eq_graphs=problem._eq_graphs
         ) if problem._obj_graph else None
+
+        # Separable bounds: exact LB for separable functions (highest priority)
+        # This is the FORCED Δ* constructor for hard polynomials like Styblinski-Tang
+        self._separable_bounds = None
+        if problem._obj_graph:
+            try:
+                self._separable_bounds = SeparableBoundComputer(
+                    problem._obj_graph, problem.n_vars
+                )
+                if not self._separable_bounds.is_separable:
+                    self._separable_bounds = None
+            except:
+                self._separable_bounds = None
 
         # Unified constraint closure (Δ*): FBBT + Krawczyk to fixed point
         self._constraint_closure = None
@@ -400,13 +414,31 @@ class OPOCHKernel:
     def _compute_lower_bound(self, region: Region) -> Tuple[float, RegionCertificate]:
         """Compute certified lower bound using witness lattice.
 
-        Tiers:
-        - Tier 0: Interval arithmetic (fastest, weakest)
-        - Tier 1: McCormick relaxation (tighter, includes constraints)
+        Tiers (in priority order):
+        - Tier 3: Separable exact bounds (HIGHEST PRIORITY - for hard polynomials)
+        - Tier 2: Constrained McCormick (for constrained problems)
+        - Tier 1: McCormick relaxation (tighter than interval)
+        - Tier 0: Interval arithmetic (fallback)
 
-        For constrained problems, uses compute_constrained_lower_bound()
-        which builds an LP including constraint relaxations.
+        The separable bound is the KEY to certifying functions like Styblinski-Tang
+        where interval arithmetic has catastrophic dependency blow-up.
         """
+        # Tier 3: Separable exact bounds (HIGHEST PRIORITY)
+        # This exploits additive structure: f(x) = Σ f_k(x_k)
+        # For each 1D block, we solve min f_k(x_k) EXACTLY
+        lb_separable = float('-inf')
+        separable_cert = None
+
+        if self._separable_bounds is not None:
+            try:
+                lb_separable, separable_cert = self._separable_bounds.compute_lower_bound(
+                    region.lower,
+                    region.upper
+                )
+            except:
+                pass
+
+        # Tier 0: Interval arithmetic (baseline)
         try:
             iv = interval_evaluate(
                 self.problem._obj_graph,
@@ -417,13 +449,13 @@ class OPOCHKernel:
         except:
             lb_interval = float('-inf')
 
+        # Tier 1: McCormick relaxation
         lb_mccormick = float('-inf')
         lb_constrained = float('-inf')
         has_constraints = (self.problem._eq_graphs or self.problem._ineq_graphs)
 
         if self._mccormick is not None:
             try:
-                # First: unconstrained McCormick for baseline
                 lb_mccormick, _ = self._mccormick.compute_lower_bound(
                     region.lower,
                     region.upper
@@ -431,7 +463,7 @@ class OPOCHKernel:
             except:
                 pass
 
-            # For constrained problems: use constrained LP for tighter bound
+            # Tier 2: Constrained McCormick
             if has_constraints:
                 try:
                     lb_constrained, _ = self._mccormick.compute_constrained_lower_bound(
@@ -441,12 +473,14 @@ class OPOCHKernel:
                 except:
                     pass
 
-        # Take the tightest bound
-        lb = max(lb_interval, lb_mccormick, lb_constrained)
+        # Take the TIGHTEST bound (max of all witnesses)
+        lb = max(lb_interval, lb_mccormick, lb_constrained, lb_separable)
 
         # Determine tier based on which bound won
-        if lb_constrained >= max(lb_interval, lb_mccormick):
-            tier = 2  # Constrained McCormick (tightest)
+        if lb_separable >= max(lb_interval, lb_mccormick, lb_constrained):
+            tier = 3  # Separable exact (best for hard polynomials)
+        elif lb_constrained >= max(lb_interval, lb_mccormick):
+            tier = 2  # Constrained McCormick
         elif lb_mccormick >= lb_interval:
             tier = 1  # Unconstrained McCormick
         else:
@@ -462,6 +496,8 @@ class OPOCHKernel:
                 "interval_lb": lb_interval,
                 "mccormick_lb": lb_mccormick,
                 "constrained_lb": lb_constrained,
+                "separable_lb": lb_separable,
+                "separable_cert": separable_cert,
             },
         )
 
