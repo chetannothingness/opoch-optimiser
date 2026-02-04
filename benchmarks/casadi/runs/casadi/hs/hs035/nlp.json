@@ -1,0 +1,38 @@
+{
+  "name": "hs035",
+  "n_vars": 3,
+  "n_constraints": 1,
+  "bounds": {
+    "lbx": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "ubx": [
+      Infinity,
+      Infinity,
+      Infinity
+    ],
+    "lbg": [
+      -Infinity
+    ],
+    "ubg": [
+      3.0
+    ]
+  },
+  "x0": [
+    0.5,
+    0.5,
+    0.5
+  ],
+  "p0": null,
+  "description": "Hock-Schittkowski 35",
+  "source": "Hock-Schittkowski",
+  "difficulty": "easy",
+  "integer_vars": [],
+  "is_convex": false,
+  "is_quadratic": true,
+  "is_least_squares": false,
+  "is_ocp": false,
+  "canonical_hash": "8e07b449e101240e20b8e9234f63b7eef6d8b7b7d7d3bb2b0393c662af71ed8c"
+}

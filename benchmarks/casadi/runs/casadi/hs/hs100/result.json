@@ -1,0 +1,17 @@
+{
+  "contract": "L",
+  "status": "FAIL",
+  "objective": 680.6300559232916,
+  "certified": false,
+  "residuals": {
+    "primal": 1.2699912304015015e-06,
+    "stationarity": 4.263256414560601e-14,
+    "complementarity": 1.4474343412619412e-06
+  },
+  "solver": {
+    "iterations": 9,
+    "time": 0.002641916275024414,
+    "return_status": "Solve_Succeeded"
+  },
+  "total_time": 0.004026889801025391
+}

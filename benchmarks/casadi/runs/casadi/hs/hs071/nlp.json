@@ -1,0 +1,43 @@
+{
+  "name": "hs071",
+  "n_vars": 4,
+  "n_constraints": 2,
+  "bounds": {
+    "lbx": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "ubx": [
+      5.0,
+      5.0,
+      5.0,
+      5.0
+    ],
+    "lbg": [
+      25.0,
+      40.0
+    ],
+    "ubg": [
+      Infinity,
+      40.0
+    ]
+  },
+  "x0": [
+    1.0,
+    5.0,
+    5.0,
+    1.0
+  ],
+  "p0": null,
+  "description": "Hock-Schittkowski 71 - IPOPT standard test",
+  "source": "Hock-Schittkowski",
+  "difficulty": "medium",
+  "integer_vars": [],
+  "is_convex": false,
+  "is_quadratic": false,
+  "is_least_squares": false,
+  "is_ocp": false,
+  "canonical_hash": "d0130e69d379c5fff98cd0565894640f8c27692314720b155cd728bb38ead222"
+}

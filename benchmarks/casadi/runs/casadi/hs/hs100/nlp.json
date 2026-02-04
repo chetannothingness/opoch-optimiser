@@ -1,0 +1,56 @@
+{
+  "name": "hs100",
+  "n_vars": 7,
+  "n_constraints": 4,
+  "bounds": {
+    "lbx": [
+      -Infinity,
+      -Infinity,
+      -Infinity,
+      -Infinity,
+      -Infinity,
+      -Infinity,
+      -Infinity
+    ],
+    "ubx": [
+      Infinity,
+      Infinity,
+      Infinity,
+      Infinity,
+      Infinity,
+      Infinity,
+      Infinity
+    ],
+    "lbg": [
+      -Infinity,
+      -Infinity,
+      -Infinity,
+      -Infinity
+    ],
+    "ubg": [
+      127.0,
+      282.0,
+      196.0,
+      0.0
+    ]
+  },
+  "x0": [
+    1.0,
+    2.0,
+    0.0,
+    4.0,
+    0.0,
+    1.0,
+    1.0
+  ],
+  "p0": null,
+  "description": "Hock-Schittkowski 100 - 7 vars, 4 constraints",
+  "source": "Hock-Schittkowski",
+  "difficulty": "hard",
+  "integer_vars": [],
+  "is_convex": false,
+  "is_quadratic": false,
+  "is_least_squares": false,
+  "is_ocp": false,
+  "canonical_hash": "65afff0b79eb22752710ab7ba526824028a0f416b266a5db4e9a9639764d0e48"
+}

@@ -1,0 +1,31 @@
+{
+  "name": "rosenbrock_nist",
+  "n_vars": 2,
+  "n_constraints": 0,
+  "bounds": {
+    "lbx": [
+      -10.0,
+      -10.0
+    ],
+    "ubx": [
+      10.0,
+      10.0
+    ],
+    "lbg": [],
+    "ubg": []
+  },
+  "x0": [
+    -1.2,
+    1.0
+  ],
+  "p0": null,
+  "description": "Rosenbrock as NIST-style least-squares",
+  "source": "NIST",
+  "difficulty": "unknown",
+  "integer_vars": [],
+  "is_convex": false,
+  "is_quadratic": false,
+  "is_least_squares": true,
+  "is_ocp": false,
+  "canonical_hash": "c75d31ab6318df217bcef68f525700f5241019d7c0861e99417186e86f04718d"
+}

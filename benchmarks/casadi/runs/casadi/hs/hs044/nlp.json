@@ -1,0 +1,51 @@
+{
+  "name": "hs044",
+  "n_vars": 4,
+  "n_constraints": 6,
+  "bounds": {
+    "lbx": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "ubx": [
+      Infinity,
+      Infinity,
+      Infinity,
+      Infinity
+    ],
+    "lbg": [
+      -Infinity,
+      -Infinity,
+      -Infinity,
+      -Infinity,
+      -Infinity,
+      -Infinity
+    ],
+    "ubg": [
+      8.0,
+      12.0,
+      12.0,
+      8.0,
+      8.0,
+      5.0
+    ]
+  },
+  "x0": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+  ],
+  "p0": null,
+  "description": "Hock-Schittkowski 44",
+  "source": "Hock-Schittkowski",
+  "difficulty": "easy",
+  "integer_vars": [],
+  "is_convex": false,
+  "is_quadratic": false,
+  "is_least_squares": false,
+  "is_ocp": false,
+  "canonical_hash": "9804aee4534eeb415a57aa04612bbd1d5e2a8737ca11edca1ef0bb535599879f"
+}

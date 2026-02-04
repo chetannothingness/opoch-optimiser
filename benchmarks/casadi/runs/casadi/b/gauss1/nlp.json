@@ -1,0 +1,49 @@
+{
+  "name": "gauss1",
+  "n_vars": 8,
+  "n_constraints": 0,
+  "bounds": {
+    "lbx": [
+      50.0,
+      0.0,
+      50.0,
+      0.0,
+      1.0,
+      50.0,
+      0.0,
+      1.0
+    ],
+    "ubx": [
+      150.0,
+      1.0,
+      150.0,
+      50.0,
+      50.0,
+      150.0,
+      100.0,
+      50.0
+    ],
+    "lbg": [],
+    "ubg": []
+  },
+  "x0": [
+    97.0,
+    0.01,
+    100.0,
+    25.0,
+    10.0,
+    90.0,
+    50.0,
+    10.0
+  ],
+  "p0": null,
+  "description": "NIST Gauss1 regression (8 params)",
+  "source": "NIST",
+  "difficulty": "extreme",
+  "integer_vars": [],
+  "is_convex": false,
+  "is_quadratic": false,
+  "is_least_squares": true,
+  "is_ocp": false,
+  "canonical_hash": "17827ad5d06d5dba1bf0e7b19b7eb663ee17933aa32d40b5b4269b76005e55e9"
+}

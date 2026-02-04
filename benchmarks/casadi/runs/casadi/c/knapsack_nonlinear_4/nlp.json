@@ -1,0 +1,46 @@
+{
+  "name": "knapsack_nonlinear_4",
+  "n_vars": 4,
+  "n_constraints": 1,
+  "bounds": {
+    "lbx": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "ubx": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "lbg": [
+      -Infinity
+    ],
+    "ubg": [
+      9.923486344379011
+    ]
+  },
+  "x0": [
+    0.5,
+    0.5,
+    0.5,
+    0.5
+  ],
+  "p0": null,
+  "description": "Nonlinear knapsack (4 items)",
+  "source": "Custom",
+  "difficulty": "unknown",
+  "integer_vars": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "is_convex": false,
+  "is_quadratic": false,
+  "is_least_squares": false,
+  "is_ocp": false,
+  "canonical_hash": "e8453f82924e2f51fd819e174a0ed959f6182174269e41f2f2e25d264f77a7e0"
+}

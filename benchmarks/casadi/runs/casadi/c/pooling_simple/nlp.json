@@ -1,0 +1,48 @@
+{
+  "name": "pooling_simple",
+  "n_vars": 5,
+  "n_constraints": 3,
+  "bounds": {
+    "lbx": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "ubx": [
+      10.0,
+      10.0,
+      10.0,
+      10.0,
+      5.0
+    ],
+    "lbg": [
+      0.0,
+      0.0,
+      -Infinity
+    ],
+    "ubg": [
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "x0": [
+    5.0,
+    5.0,
+    10.0,
+    0.0,
+    2.0
+  ],
+  "p0": null,
+  "description": "Simplified pooling problem",
+  "source": "Process Engineering",
+  "difficulty": "unknown",
+  "integer_vars": [],
+  "is_convex": false,
+  "is_quadratic": false,
+  "is_least_squares": false,
+  "is_ocp": false,
+  "canonical_hash": "41bd26e4a51f3472c267648484c623fda66a2169e8c069ca4fd6b2492d583382"
+}

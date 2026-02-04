@@ -1,0 +1,35 @@
+{
+  "name": "parameter_estimation",
+  "n_vars": 2,
+  "n_constraints": 1,
+  "bounds": {
+    "lbx": [
+      0.0,
+      0.0
+    ],
+    "ubx": [
+      5.0,
+      5.0
+    ],
+    "lbg": [
+      -Infinity
+    ],
+    "ubg": [
+      2.0
+    ]
+  },
+  "x0": [
+    1.0,
+    0.5
+  ],
+  "p0": null,
+  "description": "Constrained parameter estimation",
+  "source": "Custom",
+  "difficulty": "unknown",
+  "integer_vars": [],
+  "is_convex": false,
+  "is_quadratic": false,
+  "is_least_squares": true,
+  "is_ocp": false,
+  "canonical_hash": "a375e61be11014cb48db5cf002bfd52567cf8810bcfac07341eb693634373ef2"
+}

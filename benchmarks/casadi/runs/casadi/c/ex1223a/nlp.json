@@ -1,0 +1,50 @@
+{
+  "name": "ex1223a",
+  "n_vars": 4,
+  "n_constraints": 4,
+  "bounds": {
+    "lbx": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "ubx": [
+      3.0,
+      3.0,
+      1.0,
+      1.0
+    ],
+    "lbg": [
+      -Infinity,
+      -Infinity,
+      -Infinity,
+      -Infinity
+    ],
+    "ubg": [
+      3.0,
+      4.0,
+      0.0,
+      0.0
+    ]
+  },
+  "x0": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+  ],
+  "p0": null,
+  "description": "MINLPLib ex1223a",
+  "source": "MINLPLib",
+  "difficulty": "unknown",
+  "integer_vars": [
+    2,
+    3
+  ],
+  "is_convex": false,
+  "is_quadratic": false,
+  "is_least_squares": false,
+  "is_ocp": false,
+  "canonical_hash": "e423b5ba616914a3064ecfb8aea3ec01b2f9047824c14d2639f8f4fe9de3915f"
+}

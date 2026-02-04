@@ -1,0 +1,17 @@
+{
+  "contract": "L",
+  "status": "UNIQUE_KKT",
+  "objective": 17.014017140224134,
+  "certified": true,
+  "residuals": {
+    "primal": 1.9981591492523876e-08,
+    "stationarity": 3.0789119032093026e-08,
+    "complementarity": 3.226398888302871e-09
+  },
+  "solver": {
+    "iterations": 8,
+    "time": 0.002187013626098633,
+    "return_status": "Solve_Succeeded"
+  },
+  "total_time": 0.0033910274505615234
+}

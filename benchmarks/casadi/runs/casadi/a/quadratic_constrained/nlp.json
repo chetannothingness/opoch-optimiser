@@ -1,0 +1,35 @@
+{
+  "name": "quadratic_constrained",
+  "n_vars": 2,
+  "n_constraints": 1,
+  "bounds": {
+    "lbx": [
+      0.0,
+      0.0
+    ],
+    "ubx": [
+      10.0,
+      10.0
+    ],
+    "lbg": [
+      -Infinity
+    ],
+    "ubg": [
+      2.0
+    ]
+  },
+  "x0": [
+    0.5,
+    0.5
+  ],
+  "p0": null,
+  "description": "Quadratic with linear inequality",
+  "source": "Custom",
+  "difficulty": "unknown",
+  "integer_vars": [],
+  "is_convex": true,
+  "is_quadratic": true,
+  "is_least_squares": false,
+  "is_ocp": false,
+  "canonical_hash": "8407841f4235e43362fb61d47054551d337f4241215c60e6b01577453df9ccce"
+}

@@ -1,0 +1,36 @@
+{
+  "x": [
+    0.025490040401746798,
+    1.292206624568209
+  ],
+  "lam_g": [],
+  "lam_x": [
+    -2.3066293451288414e-10,
+    2.383873985296272e-09
+  ],
+  "objective": 7.77043444063347e-21,
+  "residuals": {
+    "primal": 0.0,
+    "stationarity": 2.471124520102818e-09,
+    "complementarity": 0.0,
+    "dual": 0.0
+  },
+  "tolerances": {
+    "eps_feas": 1e-06,
+    "eps_kkt": 1e-06,
+    "eps_comp": 1e-06
+  },
+  "status": "UNIQUE_KKT",
+  "solver": {
+    "name": "IPOPT",
+    "iterations": 5,
+    "time": 0.0015511512756347656,
+    "status": "Solve_Succeeded"
+  },
+  "hashes": {
+    "input": "5f2c3d6d1f1e42fd7f5c8c6bbd8e8329b018c547202e8db8b5e300fc8a9d20fb",
+    "solution": "8935804784daca99386090c1d484f044db09b8720a988fa7d58c6e447aca8719",
+    "certificate": "caf70161f8b39ac66c409179e61f62225899abf0872a1c66d6676532998c5248"
+  },
+  "timestamp": "2026-02-04T18:22:01.688305"
+}

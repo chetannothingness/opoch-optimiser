@@ -1,0 +1,43 @@
+{
+  "name": "lanczos1",
+  "n_vars": 6,
+  "n_constraints": 0,
+  "bounds": {
+    "lbx": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "ubx": [
+      5.0,
+      5.0,
+      5.0,
+      10.0,
+      5.0,
+      10.0
+    ],
+    "lbg": [],
+    "ubg": []
+  },
+  "x0": [
+    1.2,
+    0.3,
+    1.0,
+    1.0,
+    1.0,
+    3.0
+  ],
+  "p0": null,
+  "description": "NIST Lanczos1 regression (6 params)",
+  "source": "NIST",
+  "difficulty": "hard",
+  "integer_vars": [],
+  "is_convex": false,
+  "is_quadratic": false,
+  "is_least_squares": true,
+  "is_ocp": false,
+  "canonical_hash": "e512edf680e8a67d0ed01efbf490fbd6a49844ca9f5b718d6d87bee1aaf1b5bc"
+}

@@ -1,0 +1,45 @@
+{
+  "name": "hs076",
+  "n_vars": 4,
+  "n_constraints": 3,
+  "bounds": {
+    "lbx": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "ubx": [
+      Infinity,
+      Infinity,
+      Infinity,
+      Infinity
+    ],
+    "lbg": [
+      -Infinity,
+      -Infinity,
+      -Infinity
+    ],
+    "ubg": [
+      5.0,
+      4.0,
+      1.5
+    ]
+  },
+  "x0": [
+    0.5,
+    0.5,
+    0.5,
+    0.5
+  ],
+  "p0": null,
+  "description": "Hock-Schittkowski 76 - QP with linear constraints",
+  "source": "Hock-Schittkowski",
+  "difficulty": "easy",
+  "integer_vars": [],
+  "is_convex": false,
+  "is_quadratic": true,
+  "is_least_squares": false,
+  "is_ocp": false,
+  "canonical_hash": "547ed01cee3be5d0e8cc007bf58a2a868476af48462e3c4fc11e57111c62f8ff"
+}

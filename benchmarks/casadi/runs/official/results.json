@@ -1,0 +1,104 @@
+[
+  {
+    "name": "simple_nlp",
+    "source": "docs/examples/python/simple_nlp.py",
+    "n_vars": 2,
+    "n_constraints": 1,
+    "objective": 50.0,
+    "ipopt_status": "Solve_Succeeded",
+    "residuals": {
+      "r_primal": 0.0,
+      "r_stationarity": 0.0,
+      "r_complementarity": 0.0,
+      "max_residual": 0.0
+    },
+    "certified": true,
+    "solve_time": 0.01091704099999996,
+    "cert_time": 0.0017695409999999856
+  },
+  {
+    "name": "rosenbrock",
+    "source": "docs/examples/python/rosenbrock.py",
+    "n_vars": 3,
+    "n_constraints": 1,
+    "objective": 0.0,
+    "ipopt_status": "Solve_Succeeded",
+    "residuals": {
+      "r_primal": 0.0,
+      "r_stationarity": 0.0,
+      "r_complementarity": 0.0,
+      "max_residual": 0.0
+    },
+    "certified": true,
+    "solve_time": 0.003231708,
+    "cert_time": 0.0003382089999999782
+  },
+  {
+    "name": "rocket",
+    "source": "docs/examples/python/rocket.py",
+    "n_vars": 50,
+    "n_constraints": 2,
+    "objective": 5.601132651284824,
+    "ipopt_status": "Solve_Succeeded",
+    "residuals": {
+      "r_primal": 2.0619950191758107e-11,
+      "r_stationarity": 3.009509359397235e-11,
+      "r_complementarity": 0.2106680089939637,
+      "max_residual": 0.2106680089939637
+    },
+    "certified": false,
+    "solve_time": 1.2606103749999997,
+    "cert_time": 0.06298270800000028
+  },
+  {
+    "name": "vdp_multiple_shooting",
+    "source": "docs/examples/python/direct_multiple_shooting.py",
+    "n_vars": 62,
+    "n_constraints": 40,
+    "objective": 3.9810325827818516,
+    "ipopt_status": "Solve_Succeeded",
+    "residuals": {
+      "r_primal": 9.02128721724793e-09,
+      "r_stationarity": 1.9199675183045883e-10,
+      "r_complementarity": 6.997313314135523e-08,
+      "max_residual": 6.997313314135523e-08
+    },
+    "certified": true,
+    "solve_time": 0.012387792000000175,
+    "cert_time": 0.016738832999999786
+  },
+  {
+    "name": "race_car",
+    "source": "docs/examples/python/race_car.py",
+    "n_vars": 303,
+    "n_constraints": 304,
+    "objective": 1.9046342735128579,
+    "ipopt_status": "Solve_Succeeded",
+    "residuals": {
+      "r_primal": 6.8317258516970014e-09,
+      "r_stationarity": 1.9655240409422107e-10,
+      "r_complementarity": 0.018883371289864857,
+      "max_residual": 0.018883371289864857
+    },
+    "certified": false,
+    "solve_time": 0.05896566699999983,
+    "cert_time": 0.024594915999999856
+  },
+  {
+    "name": "chain_qp",
+    "source": "docs/examples/python/chain_qp.py",
+    "n_vars": 80,
+    "n_constraints": 40,
+    "objective": 886.9777317653943,
+    "ipopt_status": "Solve_Succeeded",
+    "residuals": {
+      "r_primal": 6.413341691047236e-09,
+      "r_stationarity": 9.88428162274598e-13,
+      "r_complementarity": 6.229195593735244e-08,
+      "max_residual": 6.229195593735244e-08
+    },
+    "certified": true,
+    "solve_time": 0.00591495799999997,
+    "cert_time": 0.0019466659999993752
+  }
+]

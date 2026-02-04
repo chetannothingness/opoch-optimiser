@@ -1,0 +1,31 @@
+{
+  "name": "misra1a",
+  "n_vars": 2,
+  "n_constraints": 0,
+  "bounds": {
+    "lbx": [
+      0.0,
+      0.0
+    ],
+    "ubx": [
+      500.0,
+      1.0
+    ],
+    "lbg": [],
+    "ubg": []
+  },
+  "x0": [
+    250.0,
+    0.0005
+  ],
+  "p0": null,
+  "description": "NIST Misra1a regression",
+  "source": "NIST",
+  "difficulty": "unknown",
+  "integer_vars": [],
+  "is_convex": false,
+  "is_quadratic": false,
+  "is_least_squares": true,
+  "is_ocp": false,
+  "canonical_hash": "df072f8b4279cdeaafd25464ceec3dc64396352e691291618e57dcac274edadb"
+}

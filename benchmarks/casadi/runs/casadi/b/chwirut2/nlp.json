@@ -1,0 +1,34 @@
+{
+  "name": "chwirut2",
+  "n_vars": 3,
+  "n_constraints": 0,
+  "bounds": {
+    "lbx": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "ubx": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "lbg": [],
+    "ubg": []
+  },
+  "x0": [
+    0.1,
+    0.01,
+    0.02
+  ],
+  "p0": null,
+  "description": "NIST Chwirut2 regression",
+  "source": "NIST",
+  "difficulty": "unknown",
+  "integer_vars": [],
+  "is_convex": false,
+  "is_quadratic": false,
+  "is_least_squares": true,
+  "is_ocp": false,
+  "canonical_hash": "dcd56eedb9b9a2cd81c8dc80d7029d5fb1676da032e68462a7883bacb12c387c"
+}

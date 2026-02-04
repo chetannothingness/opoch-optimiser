@@ -1,0 +1,55 @@
+{
+  "name": "rosenbrock_10d",
+  "n_vars": 10,
+  "n_constraints": 0,
+  "bounds": {
+    "lbx": [
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0
+    ],
+    "ubx": [
+      10.0,
+      10.0,
+      10.0,
+      10.0,
+      10.0,
+      10.0,
+      10.0,
+      10.0,
+      10.0,
+      10.0
+    ],
+    "lbg": [],
+    "ubg": []
+  },
+  "x0": [
+    -1.2,
+    1.0,
+    -1.2,
+    1.0,
+    -1.2,
+    1.0,
+    -1.2,
+    1.0,
+    -1.2,
+    1.0
+  ],
+  "p0": null,
+  "description": "Rosenbrock function (10D)",
+  "source": "CasADi Tutorial",
+  "difficulty": "medium",
+  "integer_vars": [],
+  "is_convex": false,
+  "is_quadratic": false,
+  "is_least_squares": false,
+  "is_ocp": false,
+  "canonical_hash": "540eed9985168666b1792c4fe11a21fb05f4f1e06f524431a77c121974630c42"
+}

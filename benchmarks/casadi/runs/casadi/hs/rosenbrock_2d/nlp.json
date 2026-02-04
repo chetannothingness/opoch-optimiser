@@ -1,0 +1,31 @@
+{
+  "name": "rosenbrock_2d",
+  "n_vars": 2,
+  "n_constraints": 0,
+  "bounds": {
+    "lbx": [
+      -10.0,
+      -10.0
+    ],
+    "ubx": [
+      10.0,
+      10.0
+    ],
+    "lbg": [],
+    "ubg": []
+  },
+  "x0": [
+    -1.2,
+    1.0
+  ],
+  "p0": null,
+  "description": "Rosenbrock function (2D)",
+  "source": "CasADi Tutorial",
+  "difficulty": "easy",
+  "integer_vars": [],
+  "is_convex": false,
+  "is_quadratic": false,
+  "is_least_squares": false,
+  "is_ocp": false,
+  "canonical_hash": "73db9a162b6a4f3746ef518ba1307dc6a6e387be975a832ce91d59cb331fdc72"
+}

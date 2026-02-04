@@ -1,0 +1,38 @@
+{
+  "name": "hs065",
+  "n_vars": 3,
+  "n_constraints": 1,
+  "bounds": {
+    "lbx": [
+      -4.5,
+      -4.5,
+      -5.0
+    ],
+    "ubx": [
+      4.5,
+      4.5,
+      5.0
+    ],
+    "lbg": [
+      -Infinity
+    ],
+    "ubg": [
+      48.0
+    ]
+  },
+  "x0": [
+    -5.0,
+    5.0,
+    0.0
+  ],
+  "p0": null,
+  "description": "Hock-Schittkowski 65",
+  "source": "Hock-Schittkowski",
+  "difficulty": "medium",
+  "integer_vars": [],
+  "is_convex": false,
+  "is_quadratic": false,
+  "is_least_squares": false,
+  "is_ocp": false,
+  "canonical_hash": "508849189ba301b0c14d12ae35aee619f0095442a79241cce76ab71f601770d6"
+}

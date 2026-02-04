@@ -1,0 +1,37 @@
+{
+  "name": "hs038",
+  "n_vars": 4,
+  "n_constraints": 0,
+  "bounds": {
+    "lbx": [
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0
+    ],
+    "ubx": [
+      10.0,
+      10.0,
+      10.0,
+      10.0
+    ],
+    "lbg": [],
+    "ubg": []
+  },
+  "x0": [
+    -3.0,
+    -1.0,
+    -3.0,
+    -1.0
+  ],
+  "p0": null,
+  "description": "Hock-Schittkowski 38 - Extended Rosenbrock",
+  "source": "Hock-Schittkowski",
+  "difficulty": "medium",
+  "integer_vars": [],
+  "is_convex": false,
+  "is_quadratic": false,
+  "is_least_squares": false,
+  "is_ocp": false,
+  "canonical_hash": "15a31d53ce0e468ab2fd5a26aab820f62d540cd8c6cc2099723cfdb36ab97def"
+}

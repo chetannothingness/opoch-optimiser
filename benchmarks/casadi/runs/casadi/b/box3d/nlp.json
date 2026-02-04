@@ -1,0 +1,34 @@
+{
+  "name": "box3d",
+  "n_vars": 3,
+  "n_constraints": 0,
+  "bounds": {
+    "lbx": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "ubx": [
+      20.0,
+      20.0,
+      5.0
+    ],
+    "lbg": [],
+    "ubg": []
+  },
+  "x0": [
+    0.5,
+    5.0,
+    0.5
+  ],
+  "p0": null,
+  "description": "NIST Box3D regression",
+  "source": "NIST",
+  "difficulty": "unknown",
+  "integer_vars": [],
+  "is_convex": false,
+  "is_quadratic": false,
+  "is_least_squares": true,
+  "is_ocp": false,
+  "canonical_hash": "c322e7c48ec624b1420c2fde8d0f1d5733f38dc89bf761c7b8925c5cc7db8faa"
+}

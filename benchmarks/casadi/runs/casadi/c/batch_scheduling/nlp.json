@@ -1,0 +1,61 @@
+{
+  "name": "batch_scheduling",
+  "n_vars": 6,
+  "n_constraints": 6,
+  "bounds": {
+    "lbx": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "ubx": [
+      20.0,
+      20.0,
+      20.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "lbg": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "ubg": [
+      Infinity,
+      Infinity,
+      Infinity,
+      Infinity,
+      Infinity,
+      Infinity
+    ]
+  },
+  "x0": [
+    0.0,
+    2.0,
+    5.0,
+    0.5,
+    0.5,
+    0.5
+  ],
+  "p0": null,
+  "description": "Batch scheduling with sequencing",
+  "source": "Custom",
+  "difficulty": "unknown",
+  "integer_vars": [
+    3,
+    4,
+    5
+  ],
+  "is_convex": false,
+  "is_quadratic": false,
+  "is_least_squares": false,
+  "is_ocp": false,
+  "canonical_hash": "7aae82186fcdbc7afd54dcfdd060e6bc92f850f623ede4a7806ab0424552eb18"
+}

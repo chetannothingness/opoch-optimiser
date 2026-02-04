@@ -1,0 +1,206 @@
+======================================================================
+CASADI BENCHMARK SUITE
+======================================================================
+Contract: L
+Suites: hs, a, b, c
+Output: runs/casadi
+======================================================================
+
+============================================================
+SUITE HS: Hock-Schittkowski (IPOPT Standard)
+============================================================
+Problems: 10
+
+  [1/10] hs035
+    Vars: 3, Constraints: 1
+
+******************************************************************************
+This program contains Ipopt, a library for large-scale nonlinear optimization.
+ Ipopt is released as open source code under the Eclipse Public License (EPL).
+         For more information visit https://github.com/coin-or/Ipopt
+******************************************************************************
+
+    Contract L: CERTIFIED
+    Objective: 0.111111
+    Time: 0.033s
+
+  [2/10] hs038
+    Vars: 4, Constraints: 0
+    Contract L: CERTIFIED
+    Objective: 3.92903e-23
+    Time: 0.011s
+
+  [3/10] hs044
+    Vars: 4, Constraints: 6
+    Contract L: CERTIFIED
+    Objective: -15
+    Time: 0.007s
+
+  [4/10] hs065
+    Vars: 3, Constraints: 1
+    Contract L: CERTIFIED
+    Objective: 0.953529
+    Time: 0.006s
+
+  [5/10] hs071
+    Vars: 4, Constraints: 2
+    Contract L: CERTIFIED
+    Objective: 17.014
+    Time: 0.003s
+
+  [6/10] hs076
+    Vars: 4, Constraints: 3
+    Contract L: CERTIFIED
+    Objective: -4.68182
+    Time: 0.003s
+
+  [7/10] hs100
+    Vars: 7, Constraints: 4
+    Contract L: FAIL
+    Objective: 680.63
+    Time: 0.004s
+
+  [8/10] rosenbrock_2d
+    Vars: 2, Constraints: 0
+    Contract L: CERTIFIED
+    Objective: 4.27576e-25
+    Time: 0.007s
+
+  [9/10] rosenbrock_5d
+    Vars: 5, Constraints: 0
+    Contract L: CERTIFIED
+    Objective: 3.93084
+    Time: 0.005s
+
+  [10/10] rosenbrock_10d
+    Vars: 10, Constraints: 0
+    Contract L: CERTIFIED
+    Objective: 3.98658
+    Time: 0.008s
+
+  Suite HS Summary: 9/10 certified
+
+============================================================
+SUITE A: Industrial NLP
+============================================================
+Problems: 5
+
+  [1/5] van_der_pol_ocp
+    Vars: 60, Constraints: 38
+    Contract L: CERTIFIED
+    Objective: 4.05559
+    Time: 0.008s
+
+  [2/5] rocket_landing
+    Vars: 60, Constraints: 39
+    Contract L: CERTIFIED
+    Objective: 64.4257
+    Time: 0.007s
+
+  [3/5] parameter_estimation
+    Vars: 2, Constraints: 1
+    Contract L: CERTIFIED
+    Objective: 0.00481642
+    Time: 0.003s
+
+  [4/5] robot_arm_2d
+    Vars: 2, Constraints: 0
+    Contract L: CERTIFIED
+    Objective: 7.77043e-21
+    Time: 0.002s
+
+  [5/5] quadratic_constrained
+    Vars: 2, Constraints: 1
+    Contract L: CERTIFIED
+    Objective: 0.5
+    Time: 0.003s
+
+  Suite A Summary: 5/5 certified
+
+============================================================
+SUITE B: Regression
+============================================================
+Problems: 6
+
+  [1/6] misra1a
+    Vars: 2, Constraints: 0
+    Contract L: FAIL
+    Objective: 0.124551
+    Time: 0.006s
+
+  [2/6] chwirut2
+    Vars: 3, Constraints: 0
+    Contract L: CERTIFIED
+    Objective: 193.249
+    Time: 0.004s
+
+  [3/6] lanczos1
+    Vars: 6, Constraints: 0
+    Contract L: CERTIFIED
+    Objective: 1.61172e-08
+    Time: 0.039s
+
+  [4/6] gauss1
+    Vars: 8, Constraints: 0
+    Contract L: FAIL
+    Objective: 76.1368
+    Time: 0.017s
+
+  [5/6] rosenbrock_nist
+    Vars: 2, Constraints: 0
+    Contract L: CERTIFIED
+    Objective: 4.27576e-25
+    Time: 0.007s
+
+  [6/6] box3d
+    Vars: 3, Constraints: 0
+    Contract L: CERTIFIED
+    Objective: 2.67082e-21
+    Time: 0.003s
+
+  Suite B Summary: 4/6 certified
+
+============================================================
+SUITE C: MINLP
+============================================================
+Problems: 5
+
+  [1/5] ex1223a
+    Vars: 4, Constraints: 4
+    Contract L: CERTIFIED
+    Objective: -3
+    Time: 0.003s
+
+  [2/5] facility_location_3x4
+    Vars: 15, Constraints: 7
+    Contract L: CERTIFIED
+    Objective: 46.9243
+    Time: 0.005s
+
+  [3/5] knapsack_nonlinear_4
+    Vars: 4, Constraints: 1
+    Contract L: CERTIFIED
+    Objective: -47.5871
+    Time: 0.003s
+
+  [4/5] pooling_simple
+    Vars: 5, Constraints: 3
+    Contract L: CERTIFIED
+    Objective: -80
+    Time: 0.003s
+
+  [5/5] batch_scheduling
+    Vars: 6, Constraints: 6
+    Contract L: CERTIFIED
+    Objective: 0
+    Time: 0.004s
+
+  Suite C Summary: 5/5 certified
+
+======================================================================
+FINAL SUMMARY
+======================================================================
+Total Problems: 26
+Total Certified: 23 (88.5%)
+Total Time: 0.20s
+======================================================================

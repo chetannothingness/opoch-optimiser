@@ -1,0 +1,31 @@
+{
+  "name": "robot_arm_2d",
+  "n_vars": 2,
+  "n_constraints": 0,
+  "bounds": {
+    "lbx": [
+      -3.141592653589793,
+      -3.141592653589793
+    ],
+    "ubx": [
+      3.141592653589793,
+      3.141592653589793
+    ],
+    "lbg": [],
+    "ubg": []
+  },
+  "x0": [
+    0.5,
+    0.5
+  ],
+  "p0": null,
+  "description": "2D robot arm inverse kinematics",
+  "source": "Custom",
+  "difficulty": "unknown",
+  "integer_vars": [],
+  "is_convex": false,
+  "is_quadratic": false,
+  "is_least_squares": false,
+  "is_ocp": false,
+  "canonical_hash": "5f2c3d6d1f1e42fd7f5c8c6bbd8e8329b018c547202e8db8b5e300fc8a9d20fb"
+}

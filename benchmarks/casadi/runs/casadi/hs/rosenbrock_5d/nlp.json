@@ -1,0 +1,40 @@
+{
+  "name": "rosenbrock_5d",
+  "n_vars": 5,
+  "n_constraints": 0,
+  "bounds": {
+    "lbx": [
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0,
+      -10.0
+    ],
+    "ubx": [
+      10.0,
+      10.0,
+      10.0,
+      10.0,
+      10.0
+    ],
+    "lbg": [],
+    "ubg": []
+  },
+  "x0": [
+    -1.2,
+    1.0,
+    -1.2,
+    1.0,
+    -1.2
+  ],
+  "p0": null,
+  "description": "Rosenbrock function (5D)",
+  "source": "CasADi Tutorial",
+  "difficulty": "medium",
+  "integer_vars": [],
+  "is_convex": false,
+  "is_quadratic": false,
+  "is_least_squares": false,
+  "is_ocp": false,
+  "canonical_hash": "edafcf058cc0e56e74ec49cf5f80fcba73645a5eab368750a3aba58598e1c14e"
+}
